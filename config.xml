@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>wiryio</name>
+	<displayName><![CDATA[Wiry.io Cookie-less Chat, Popups and Analytics]]></displayName>
+	<version><![CDATA[1.0.0]]></version>
+	<description><![CDATA[Easy-to-use live chat, popups and web analytics without cookies. Compliant with GDPR, CCPA and other privacy regulations.]]></description>
+	<author><![CDATA[Wiry.io]]></author>
+	<tab><![CDATA[pricing_promotion]]></tab>
+	<is_configurable>1</is_configurable>
+	<need_instance>1</need_instance>
+</module>
