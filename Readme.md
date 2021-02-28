@@ -1,10 +1,10 @@
-# Wiry.io Cookie-less Chat, Popups and Analytics
+# Wiry.io - Acquire and delight customers
 
-Version: 1.0.0
+Version: 1.0.1
 
 License: GPLv2
 
-Easy-to-use live chat, popups and web analytics without cookies.
+Privacy-friendly live chat, popups and web analytics without cookies.
 
 ## Description
 
@@ -33,6 +33,10 @@ Learn more at [Wiry.io](https://wiry.io/?ref=prestashop).
 4. Enter your Account ID and click Save.
 
 ## Changelog
+
+__1.0.1__
+
+- New script
 
 __1.0.0__
 

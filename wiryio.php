@@ -36,7 +36,7 @@ class Wiryio extends Module
     {
         $this->name = 'wiryio';
         $this->tab = 'pricing_promotion';
-        $this->version = '1.0.0';
+        $this->version = '1.0.1';
         $this->author = 'Wiry.io';
         $this->need_instance = 0;
 
@@ -47,8 +47,8 @@ class Wiryio extends Module
 
         parent::__construct();
 
-        $this->displayName = $this->l('Wiry.io Cookie-less Chat, Popups and Analytics');
-        $this->description = $this->l('Easy-to-use live chat, popups and web analytics without cookies. Compliant with GDPR, CCPA and other privacy regulations.');
+        $this->displayName = $this->l('Wiry.io - Acquire and delight customers');
+        $this->description = $this->l('Privacy-friendly live chat, popups and web analytics without cookies. Compliant with GDPR, CCPA and other privacy regulations.');
 
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
     }
@@ -66,6 +66,9 @@ class Wiryio extends Module
     public function uninstall()
     {
         Configuration::deleteByName('WIRYIO_ACCOUNT_ID');
+        Configuration::deleteByName('WIRYIO_VERSION');
+        Configuration::deleteByName('WIRYIO_DOMAIN');
+        Configuration::deleteByName('WIRYIO_EXTRAS');
         return parent::uninstall();
     }
 
@@ -134,6 +137,27 @@ class Wiryio extends Module
                         'name' => 'WIRYIO_ACCOUNT_ID',
                         'label' => $this->l('Account ID'),
                     ),
+                    array(
+                        'col' => 3,
+                        'type' => 'text',
+                        'desc' => $this->l('Default: 1.0'),
+                        'name' => 'WIRYIO_VERSION',
+                        'label' => $this->l('Script version'),
+                    ),
+                    array(
+                        'col' => 3,
+                        'type' => 'text',
+                        'desc' => $this->l('Change only if you\'re using a custom domain name'),
+                        'name' => 'WIRYIO_DOMAIN',
+                        'label' => $this->l('Custom domain name'),
+                    ),
+                    array(
+                        'col' => 3,
+                        'type' => 'textarea',
+                        'desc' => $this->l('Expert configuration (JSON)'),
+                        'name' => 'WIRYIO_EXTRAS',
+                        'label' => $this->l('Expert configuration'),
+                    ),
                 ),
                 'submit' => array(
                     'title' => $this->l('Save'),
@@ -149,6 +173,9 @@ class Wiryio extends Module
     {
         return array(
             'WIRYIO_ACCOUNT_ID' => Configuration::get('WIRYIO_ACCOUNT_ID', ''),
+            'WIRYIO_VERSION' => Configuration::get('WIRYIO_VERSION', ''),
+            'WIRYIO_DOMAIN' => Configuration::get('WIRYIO_DOMAIN', ''),
+            'WIRYIO_EXTRAS' => Configuration::get('WIRYIO_EXTRAS', ''),
         );
     }
 
@@ -172,23 +199,27 @@ class Wiryio extends Module
 		if (Configuration::get('WIRYIO_ACCOUNT_ID'))
 		{
             $account_id = Tools::safeOutput(Configuration::get('WIRYIO_ACCOUNT_ID'));
+            $version = Tools::safeOutput(Configuration::get('WIRYIO_VERSION'));
+            $domain = Tools::safeOutput(Configuration::get('WIRYIO_DOMAIN'));
+            $user_extra = Tools::safeOutput(Configuration::get('WIRYIO_EXTRAS'));
+			$extras = (object) array();
+			if ($user_extra) {
+				$extras = (object) array_merge((array) $extras, (array) json_decode($user_extra));
+			}
+			if (!$domain) {
+				$domain = "gateway.wiryio.com";
+			}
+			if (!$version) {
+				$version = "1.0";
+			}
+			$json_extras = urlencode(json_encode($extras));
             return "
                 <!-- Wiry.io Plugin v{$this->version} -->
-				<script>
-				(function(scope, targetEl, tag, baseUrl, accountId) {
-						var fn, el, script;
-						fn = function WiryConfig(prop, val) {
-						scope[fn.name]._options[prop] = val;
-						};
-						scope[fn.name] = fn;
-						fn._options = { accountId: accountId, baseUrl: baseUrl, load: new Date() };
-						script = targetEl.createElement(tag);
-						script.async = 1;
-						script.src = baseUrl + '/static/script/bundle.js';
-						el = targetEl.getElementsByTagName(tag)[0];
-						(el ? el.parentNode.insertBefore(script, el) : targetEl.head.appendChild(script));
-				})(window, document, 'script', 'https://gateway.wiryio.com', '{$account_id}');
-				</script>
+                <script
+                    async
+                    src=\"https://{$domain}/script/{$version}/{$account_id}.js\"
+                    data-options=\"{$json_extras}\"
+                ></script>
                 <!-- / Wiry.io Plugin -->
             ";
 		}
